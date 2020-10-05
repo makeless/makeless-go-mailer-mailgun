@@ -1,15 +1,15 @@
-package go_saas_mailer_mailgun
+package makeless_go_mailer_mailgun
 
 import (
 	"context"
 	"sync"
 
-	"github.com/go-saas/go-saas/mailer"
 	"github.com/mailgun/mailgun-go/v4"
+	"github.com/makeless/makeless-go/mailer"
 )
 
 type Mailer struct {
-	Handlers map[string]func(data map[string]interface{}) (go_saas_mailer.Mail, error)
+	Handlers map[string]func(data map[string]interface{}) (makeless_go_mailer.Mail, error)
 	Mailgun  *mailgun.MailgunImpl
 	ApiBase  string
 	Domain   string
@@ -18,34 +18,34 @@ type Mailer struct {
 	*sync.RWMutex
 }
 
-func (mailer *Mailer) GetHandlers() map[string]func(data map[string]interface{}) (go_saas_mailer.Mail, error) {
+func (mailer *Mailer) GetHandlers() map[string]func(data map[string]interface{}) (makeless_go_mailer.Mail, error) {
 	mailer.RLock()
 	defer mailer.RUnlock()
 
 	return mailer.Handlers
 }
 
-func (mailer *Mailer) GetHandler(name string) (func(data map[string]interface{}) (go_saas_mailer.Mail, error), error) {
+func (mailer *Mailer) GetHandler(name string) (func(data map[string]interface{}) (makeless_go_mailer.Mail, error), error) {
 	mailer.RLock()
 	defer mailer.RUnlock()
 
 	handler, exists := mailer.Handlers[name]
 
 	if !exists {
-		return nil, go_saas_mailer.MailNotExistsErr
+		return nil, makeless_go_mailer.MailNotExistsErr
 	}
 
 	return handler, nil
 }
 
-func (mailer *Mailer) SetHandler(name string, handler func(data map[string]interface{}) (go_saas_mailer.Mail, error)) {
+func (mailer *Mailer) SetHandler(name string, handler func(data map[string]interface{}) (makeless_go_mailer.Mail, error)) {
 	mailer.Lock()
 	defer mailer.Unlock()
 
 	mailer.Handlers[name] = handler
 }
 
-func (mailer *Mailer) GetMail(name string, data map[string]interface{}) (go_saas_mailer.Mail, error) {
+func (mailer *Mailer) GetMail(name string, data map[string]interface{}) (makeless_go_mailer.Mail, error) {
 	handler, err := mailer.GetHandler(name)
 
 	if err != nil {
@@ -98,7 +98,7 @@ func (mailer *Mailer) Init() error {
 	return nil
 }
 
-func (mailer *Mailer) Send(ctx context.Context, mail go_saas_mailer.Mail) error {
+func (mailer *Mailer) Send(ctx context.Context, mail makeless_go_mailer.Mail) error {
 	var message = mailer.GetMailgun().NewMessage(
 		mail.GetFrom(),
 		mail.GetSubject(),
