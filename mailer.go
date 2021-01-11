@@ -7,6 +7,7 @@ import (
 	"github.com/mailgun/mailgun-go/v4"
 	"github.com/makeless/makeless-go/mailer"
 	"github.com/makeless/makeless-go/queue"
+	"github.com/makeless/makeless-go/queue/basic"
 )
 
 type Mailer struct {
@@ -135,4 +136,11 @@ func (mailer *Mailer) Send(ctx context.Context, mail makeless_go_mailer.Mail) er
 
 	_, _, err := mailer.GetMailgun().Send(ctx, message)
 	return err
+}
+
+func (mailer *Mailer) SendQueue(mail makeless_go_mailer.Mail) error {
+	return mailer.GetQueue().Add(&basic.Node{
+		Data:    mail,
+		RWMutex: new(sync.RWMutex),
+	})
 }
