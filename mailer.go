@@ -6,10 +6,12 @@ import (
 
 	"github.com/mailgun/mailgun-go/v4"
 	"github.com/makeless/makeless-go/mailer"
+	"github.com/makeless/makeless-go/queue"
 )
 
 type Mailer struct {
 	Handlers map[string]func(data map[string]interface{}) (makeless_go_mailer.Mail, error)
+	Queue    makeless_go_queue.Queue
 	Mailgun  *mailgun.MailgunImpl
 	ApiBase  string
 	Domain   string
@@ -43,6 +45,13 @@ func (mailer *Mailer) SetHandler(name string, handler func(data map[string]inter
 	defer mailer.Unlock()
 
 	mailer.Handlers[name] = handler
+}
+
+func (mailer *Mailer) GetQueue() makeless_go_queue.Queue {
+	mailer.RLock()
+	defer mailer.RUnlock()
+
+	return mailer.Queue
 }
 
 func (mailer *Mailer) GetMail(name string, data map[string]interface{}) (makeless_go_mailer.Mail, error) {
