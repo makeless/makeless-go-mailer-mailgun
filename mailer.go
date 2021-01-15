@@ -2,6 +2,7 @@ package makeless_go_mailer_mailgun
 
 import (
 	"context"
+	"encoding/json"
 	"sync"
 
 	"github.com/mailgun/mailgun-go/v4"
@@ -139,8 +140,14 @@ func (mailer *Mailer) Send(ctx context.Context, mail makeless_go_mailer.Mail) er
 }
 
 func (mailer *Mailer) SendQueue(mail makeless_go_mailer.Mail) error {
+	bytes, err := json.Marshal(mail)
+
+	if err != nil {
+		return err
+	}
+
 	return mailer.GetQueue().Add(&makeless_go_queue_basic.Node{
-		Data:    mail,
+		Data:    bytes,
 		RWMutex: new(sync.RWMutex),
 	})
 }
